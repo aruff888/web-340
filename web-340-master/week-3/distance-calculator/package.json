@@ -1,0 +1,12 @@
+{
+  "name": "distance-calculator",
+  "version": "1.0.0",
+  "description": "A Node.js module that calculates the distance between planets in AU",
+  "main": "src/distance-calculator.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node test/distance-calculator.spec.js"
+  },
+  "author": "Amanda Ruff",
+  "license": "MIT"
+}
