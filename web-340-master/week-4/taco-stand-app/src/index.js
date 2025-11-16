@@ -1,27 +1,56 @@
 /**
- * Author:
- * Date:
- * File Name:
- * Description:
+ * Author: Amanda Ruff
+ * Date: 11/16/25
+ * File Name: index.js
+ * Description: Entry point for Taco Stand App
  */
 
 "use strict";
 
-const readline = require("readline");
-const TacoStandEmitter = require("./tacoStand");
+import TacoStandEmitter from "./taco-stand.js";
+import readline from "readline";
 
-const tacoStand = new TacoStandEmitter();
+const stand = new TacoStandEmitter();
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
+stand.on("serve", (customer) => {
+    console.log(`Taco Stand serves: ${customer}`);
 });
 
-// TODO: Set up event listeners for the tacoStand object
-rl.on("line", (input) => {
-  const [command, ...args] = input.split(" ");
+stand.on("prepare", (taco) => {
+    console.log(`Taco Stand prepares: ${taco} taco`);
+});
 
-  // TODO: Handle the commands
+stand.on("rush", (rush) => {
+    console.log(`Taco Stand handles rush: ${rush}`);
+});
+
+// CLI setup
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
 });
 
 console.log(`Enter a command: "serve", "prepare", or "rush", followed by a space and the argument.`);
+
+rl.setPrompt("> ");
+rl.prompt();
+
+rl.on("line", (input) => {
+    const [command, arg] = input.split(" ");
+
+    switch (command) {
+        case "serve":
+            stand.serveCustomer(arg);
+            break;
+        case "prepare":
+            stand.prepareTaco(arg);
+            break;
+        case "rush":
+            stand.handleRush(arg);
+            break;
+        default:
+            console.log("Unknown command.");
+    }
+
+    rl.prompt();
+});
