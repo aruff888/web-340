@@ -1,21 +1,56 @@
-const CharacterCreator = require('../src/character-creator');
+// test/character-creator.spec.js
+const CharacterCreator = require("../src/character-creator");
 
-describe('CharacterCreator', () => {
-  let characterCreator;
+describe("CharacterCreator Duplex Stream", () => {
 
-  beforeEach(() => {
-    characterCreator = new CharacterCreator();
+  test("Test 1: processes data correctly when written to", (done) => {
+    const creator = new CharacterCreator();
+
+    creator.write("Warrior");
+    creator.write("Male");
+    creator.write("Loves swords");
+
+    creator.on("data", (output) => {
+      expect(output.toString()).toContain("Warrior");
+      expect(output.toString()).toContain("Male");
+      expect(output.toString()).toContain("Loves swords");
+      done();
+    });
+
+    creator.read();
   });
 
-  test("should process data correctly when written to", (done) => {
-    // TODO: Write your test here
+  test("Test 2: emits error when an empty string is written", (done) => {
+    const creator = new CharacterCreator();
+
+    creator.on("error", (err) => {
+      expect(err).toBeInstanceOf(Error);
+      expect(err.message).toBe("Input cannot be empty");
+      done();
+    });
+
+    creator.write(""); // Should trigger error
   });
 
-  test("should emit 'error' when invalid data is written", (done) => {
-    // TODO: Write your test here
+  test("Test 3: transforms data correctly", (done) => {
+    const creator = new CharacterCreator();
+
+    creator.write("Mage");
+    creator.write("Other");
+    creator.write("Can cast fireballs");
+
+    creator.on("data", (output) => {
+      const text = output.toString();
+      expect(text).toBe(
+        `Character Created:
+Class: Mage
+Gender: Other
+Fun Fact: Can cast fireballs`
+      );
+      done();
+    });
+
+    creator.read();
   });
 
-  test("should transform data correctly when written to", (done) => {
-    // TODO: Write your test here
-  });
 });
