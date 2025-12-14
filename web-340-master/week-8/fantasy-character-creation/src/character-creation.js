@@ -1,46 +1,48 @@
 "use strict";
 
-/*
- * This file allows you to choose between using callbacks or promises (async/await) for handling asynchronous operations.
- *
- * If you want to use callbacks:
- * 1. Uncomment the 'fs' require statement under the "For callbacks" comment.
- * 2. Uncomment the 'createCharacter' and 'getCharacters' functions under the "For callbacks" comment.
- * 3. Uncomment the 'module.exports' line under the "For callbacks" comment.
- *
- * If you want to use promises (async/await):
- * 1. Uncomment the 'fs' require statement under the "For promises" comment.
- * 2. Uncomment the 'createCharacter' and 'getCharacters' functions under the "For promises" comment.
- * 3. Uncomment the 'module.exports' line under the "For promises" comment.
- */
-
-// For callbacks:
-/*
-const fs = require('fs');
-
-function createCharacter(character, callback) {
-  // TODO: Implement this function
-}
-
-function getCharacters(callback) {
-  // TODO: Implement this function
-}
-*/
-
-// For promises:
-/*
 const fs = require('fs').promises;
+const path = require('path');
 
+const FILE_NAME = "characters.json";
+const FILE_PATH = path.join(__dirname, FILE_NAME);
+
+/**
+ * Writes a character object to the file.
+ * @param {Object} character
+ */
 async function createCharacter(character) {
-  // TODO: Implement this function
+  try {
+    let existingCharacters = [];
+
+    // Read existing characters if file exists
+    try {
+      const data = await fs.readFile(FILE_PATH, 'utf8');
+      existingCharacters = JSON.parse(data);
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw err; // Ignore file-not-found
+    }
+
+    existingCharacters.push(character);
+
+    // Write updated array back to file
+    await fs.writeFile(FILE_PATH, JSON.stringify(existingCharacters, null, 2));
+
+    return "Character saved successfully!";
+  } catch (err) {
+    throw err;
+  }
 }
 
+/**
+ * Reads all characters from the file.
+ */
 async function getCharacters() {
-  // TODO: Implement this function
+  try {
+    const data = await fs.readFile(FILE_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    throw err;
+  }
 }
-*/
 
-// Uncomment the appropriate exports depending on whether you're using callbacks or promises:
-
-// module.exports = { createCharacter, getCharacters }; // For callbacks
-// module.exports = { createCharacter, getCharacters }; // For promises
+module.exports = { createCharacter, getCharacters };

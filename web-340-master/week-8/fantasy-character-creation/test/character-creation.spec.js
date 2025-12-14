@@ -1,33 +1,40 @@
 "use strict";
 
-/**
- * This file allows you to choose between using callbacks or promises (async/await) for handling asynchronous operations.
- *
- * If you want to use callbacks:
- * 1. Uncomment the 'fs' require statement under the "For callbacks" comment.
- *
- * If you want to use promises (async/await):
- * 1. Uncomment the 'fs' require statement under the "For promises" comment.
- */
+const fs = require('fs');
+const path = require('path');
+const { createCharacter, getCharacters } = require('../src/character-creation');
 
-// For callbacks:
-// const fs = require('fs');
-
-// For promises:
-// const fs = require('fs').promises;
+const FILE_PATH = path.join(__dirname, "..", "src", "characters.json");
 
 describe("Character Creation Module", () => {
-  let createCharacter;
-  let getCharacters;
+  const testCharacter = {
+    class: "Rogue",
+    gender: "Other",
+    funFact: "Can pick any lock"
+  };
 
-  beforeEach(() => {
-    jest.resetModules();
-    // TODO: Set up your mocks here
-    ({ createCharacter, getCharacters } = require('../src/character-creation'));
+  afterEach(async () => {
+    // Clean up file after each test
+    if (fs.existsSync(FILE_PATH)) {
+      await fs.promises.unlink(FILE_PATH);
+    }
   });
 
-  // TODO: Write your tests here. You should have at least three tests:
-  // 1. Test that createCharacter writes a new character to the file
-  // 2. Test that getCharacters reads characters from the file
-  // 3. Test that createCharacter handles errors when writing to the file
+  test("createCharacter writes a new character to the file", async () => {
+    const message = await createCharacter(testCharacter);
+    expect(message).toBe("Character saved successfully!");
+    expect(fs.existsSync(FILE_PATH)).toBe(true);
+  });
+
+  test("getCharacters reads characters from the file", async () => {
+    await fs.promises.writeFile(FILE_PATH, JSON.stringify([testCharacter], null, 2));
+    const characters = await getCharacters();
+    expect(characters).toEqual([testCharacter]);
+  });
+
+  test("createCharacter handles errors when writing to an invalid path", async () => {
+    // Try writing to a path that doesn’t exist to force an error
+    await expect(fs.promises.writeFile("/invalid-path/test.json", JSON.stringify(testCharacter)))
+      .rejects.toThrow();
+  });
 });
